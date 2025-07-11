@@ -1,0 +1,8 @@
+---
+# defaults file for accounts
+accounts_bmc_admin_user: "{{ bmc_admin_user }}"
+accounts_bmc_admin_password: "{{ bmc_admin_password }}"
+accounts_bmc_validate_certs: "{{ bmc_validate_certs }}"
+accounts_bmc_force_basic_auth: "{{ bmc_force_basic_auth }}"
+accounts_bmc_uri: "{{ bmc_uri }}"
+...

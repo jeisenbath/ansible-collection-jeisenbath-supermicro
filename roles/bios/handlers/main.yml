@@ -1,0 +1,17 @@
+---
+# handlers file for bios
+- name: Restart and apply BIOS settings
+  ansible.builtin.uri:
+    url_username: "{{ bios_bmc_admin_user }}"
+    url_password: "{{ bios_bmc_admin_password }}"
+    validate_certs: "{{ bios_bmc_validate_certs }}"
+    force_basic_auth: "{{ bios_bmc_force_basic_auth }}"
+    url: "https://{{ inventory_hostname }}/redfish/v1/Systems/1/Actions/ComputerSystem.Reset"
+    method: POST
+    status_code:
+      - 200
+    body_format: json
+    body:
+      ResetType: "{{ bios_reset_type }}"
+  delegate_to: localhost
+...

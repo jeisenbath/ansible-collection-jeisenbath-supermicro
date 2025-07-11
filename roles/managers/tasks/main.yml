@@ -1,0 +1,31 @@
+---
+# tasks file for managers
+- name: Create managers_api anchor
+  ansible.builtin.set_fact:
+    managers_api: &managers_api
+      url: "https://{{ managers_bmc_uri }}/redfish/v1/Managers/1"
+      url_username: "{{ managers_bmc_admin_user }}"
+      url_password: "{{ managers_bmc_admin_password }}"
+      validate_certs: "{{ managers_bmc_validate_certs }}"
+      force_basic_auth: "{{ managers_bmc_force_basic_auth }}"
+
+- name: Get Managers info
+  ansible.builtin.uri:
+    <<: *managers_api
+    status_code: [200]
+  delegate_to: localhost
+  register: managers_info
+
+- name: Configure Timezone
+  when: managers_info.json.TimeZoneName != managers_timezone
+  ansible.builtin.uri:
+    <<: *managers_api
+    status_code: [200]
+    method: PATCH
+    body:
+      TimeZoneName: "{{ managers_timezone }}"
+    body_format: json
+  delegate_to: localhost
+  register: managers_config_timezone
+  changed_when: managers_config_timezone.status == 200
+...

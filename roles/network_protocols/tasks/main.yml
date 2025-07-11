@@ -1,0 +1,68 @@
+---
+# tasks file for network_protocols
+- name: Create network_protocols_bmc_api anchor
+  ansible.builtin.set_fact:
+    network_protocols_bmc_api: &network_protocols_bmc_api
+      url_username: "{{ network_protocols_bmc_admin_user }}"
+      url_password: "{{ network_protocols_bmc_admin_password }}"
+      validate_certs: "{{ network_protocols_bmc_validate_certs }}"
+      force_basic_auth: "{{ network_protocols_bmc_force_basic_auth }}"
+
+- name: Get NetworkProtocol data
+  ansible.builtin.uri:
+    <<: *network_protocols_bmc_api
+    url: "https://{{ network_protocols_bmc_uri }}/redfish/v1/Managers/1/NetworkProtocol"
+    status_code: [200]
+  delegate_to: localhost
+  register: network_protocols_info
+
+- name: Configure NTP
+  when: (network_protocols_info.json.NTP.ProtocolEnabled != network_protocols_ntp_enabled) or
+        (network_protocols_info.json.NTP.NTPServers != network_protocols_ntp_servers)
+  ansible.builtin.uri:
+    <<: *network_protocols_bmc_api
+    url: "https://{{ network_protocols_bmc_uri }}/redfish/v1/Managers/1/NetworkProtocol"
+    status_code: [200, 202]
+    method: PATCH
+    body:
+      NTP:
+        ProtocolEnabled: "{{ network_protocols_ntp_enabled }}"
+        NTPServers: "{{ network_protocols_ntp_servers }}"
+    body_format: json
+  delegate_to: localhost
+  register: network_protocols_config_ntp
+  changed_when: network_protocols_config_ntp.status == 202
+
+- name: Configure SNMPv2
+  when: (network_protocols_info.json.SNMP.EnableSNMPv2c != network_protocols_snmp2_enabled) or
+        (network_protocols_info.json.SNMP.CommunityStrings != network_protocols_snmp2_community_strings)
+  ansible.builtin.uri:
+    <<: *network_protocols_bmc_api
+    url: "https://{{ network_protocols_bmc_uri }}/redfish/v1/Managers/1/NetworkProtocol"
+    status_code: [200]
+    method: PATCH
+    body:
+      SNMP:
+        ProtocolEnabled: true
+        EnableSNMPv2c: "{{ network_protocols_snmp2_enabled }}"
+        CommunityStrings: "{{ network_protocols_snmp2_community_strings }}"
+    body_format: json
+  delegate_to: localhost
+  register: network_protocols_config_snmp2
+  changed_when: network_protocols_config_snmp2.status == 200
+
+- name: Configure SSH
+  when: network_protocols_info.json.SSH.ProtocolEnabled != network_protocols_ssh_enabled
+  ansible.builtin.uri:
+    <<: *network_protocols_bmc_api
+    url: "https://{{ network_protocols_bmc_uri }}/redfish/v1/Managers/1/NetworkProtocol"
+    status_code: [200]
+    method: PATCH
+    body:
+      SSH:
+        ProtocolEnabled: "{{ network_protocols_ssh_enabled }}"
+    body_format: json
+  delegate_to: localhost
+  register: network_protocols_config_ssh
+  changed_when: network_protocols_config_ssh.status == 200
+...

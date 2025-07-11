@@ -1,0 +1,12 @@
+---
+# defaults file for network_protocols
+network_protocols_bmc_admin_user: "{{ bmc_admin_user }}"
+network_protocols_bmc_admin_password: "{{ bmc_admin_password }}"
+network_protocols_bmc_validate_certs: "{{ bmc_validate_certs }}"
+network_protocols_bmc_force_basic_auth: "{{ bmc_force_basic_auth }}"
+network_protocols_bmc_uri: "{{ bmc_uri }}"
+network_protocols_ntp_enabled: false
+network_protocols_snmp2_enabled: false
+network_protocols_snmp2_community_strings: []
+network_protocols_ssh_enabled: true
+...

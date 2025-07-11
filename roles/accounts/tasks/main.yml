@@ -1,0 +1,74 @@
+---
+# tasks file for accounts
+- name: Create accounts_bmc_api anchor
+  ansible.builtin.set_fact:
+    accounts_bmc_api: &accounts_bmc_api
+      url_username: "{{ accounts_bmc_admin_user }}"
+      url_password: "{{ accounts_bmc_admin_password }}"
+      validate_certs: "{{ accounts_bmc_validate_certs }}"
+      force_basic_auth: "{{ accounts_bmc_force_basic_auth }}"
+
+- name: Create/Modify user
+  when: accounts_bmc_user is defined
+  block:
+    - name: Assert ID is not 1 (Reserved)
+      ansible.builtin.assert:
+        that:
+          - accounts_bmc_user.Id != 1
+
+    - name: Check if user exists
+      ansible.builtin.uri:
+        <<: *accounts_bmc_api
+        url: "https://{{ accounts_bmc_uri }}/redfish/v1/AccountService/Accounts/{{ accounts_bmc_user.Id }}"
+        status_code: [200, 404]
+      delegate_to: localhost
+      register: accounts_userid_info
+
+    - name: Create user
+      when: accounts_userid_info.status == 404
+      ansible.builtin.uri:
+        <<: *accounts_bmc_api
+        url: "https://{{ accounts_bmc_uri }}/redfish/v1/AccountService/Accounts"
+        method: POST
+        status_code: [201]
+        body:
+          UserName: "{{ accounts_bmc_user.UserName }}"
+          Password: "{{ accounts_bmc_user.Password }}"
+          RoleId: "{{ accounts_bmc_user.RoleId }}"
+          Enabled: "{{ accounts_bmc_user.Enabled }}"
+        body_format: json
+      delegate_to: localhost
+      register: accounts_create_user
+      changed_when: accounts_create_user.status == 201
+
+    - name: Modify user
+      when: accounts_userid_info.status == 200
+      block:
+        - name: Modify RoleId
+          when: accounts_userid_info.json.RoleId != accounts_bmc_user.RoleId
+          ansible.builtin.uri:
+            <<: *accounts_bmc_api
+            url: "https://{{ accounts_bmc_uri }}/redfish/v1/AccountService/Accounts/{{ accounts_bmc_user.Id }}"
+            method: PATCH
+            status_code: [200]
+            body:
+              RoleId: "{{ accounts_bmc_user.RoleId }}"
+            body_format: json
+          delegate_to: localhost
+          register: accounts_modify_roleid
+          changed_when: accounts_modify_roleid.status == 200
+
+        - name: Modify Enabled
+          when: accounts_userid_info.json.Enabled != accounts_bmc_user.Enabled
+          ansible.builtin.uri:
+            <<: *accounts_bmc_api
+            url: "https://{{ accounts_bmc_uri }}/redfish/v1/AccountService/Accounts/{{ accounts_bmc_user.Id }}"
+            method: PATCH
+            status_code: [200]
+            body:
+              Enabled: "{{ accounts_bmc_user.Enabled }}"
+            body_format: json
+          delegate_to: localhost
+          register: accounts_modify_enabled
+          changed_when: accounts_modify_enabled.status == 200
+...

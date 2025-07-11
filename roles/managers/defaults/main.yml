@@ -1,0 +1,9 @@
+---
+# defaults file for managers
+managers_bmc_admin_user: "{{ bmc_admin_user }}"
+managers_bmc_admin_password: "{{ bmc_admin_password }}"
+managers_bmc_validate_certs: "{{ bmc_validate_certs }}"
+managers_bmc_force_basic_auth: "{{ bmc_force_basic_auth }}"
+managers_bmc_uri: "{{ bmc_uri }}"
+managers_timezone: (UTC+00:00) Coordinated Universal Time
+...

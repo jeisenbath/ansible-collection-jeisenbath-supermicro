@@ -1,0 +1,17 @@
+namespace: jeisenbath
+name: supermicro
+version: 1.0.0
+readme: README.md
+authors:
+  - Josh Eisenbath
+description: Roles for configuring Supermicro servers
+license:
+  - GPL-3.0-or-later
+tags:
+  - supermicro
+  - infrastructure
+repository: https://github.com/jeisenbath/ansible-collection-jeisenbath-supermicro
+homepage: https://github.com/jeisenbath/ansible-collection-jeisenbath-supermicro
+issues: https://github.com/jeisenbath/ansible-collection-jeisenbath-supermicro/issues
+build_ignore:
+  - releases

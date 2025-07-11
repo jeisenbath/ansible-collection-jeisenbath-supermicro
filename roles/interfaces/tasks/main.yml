@@ -1,0 +1,6 @@
+---
+# tasks file for interfaces
+- name: Configure Ethernet Interface
+  when: interfaces_ethernet_interface is defined
+  ansible.builtin.include_tasks: ethernet_interface.yml
+...

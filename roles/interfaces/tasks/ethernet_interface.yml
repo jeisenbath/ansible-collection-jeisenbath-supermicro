@@ -1,0 +1,77 @@
+---
+- name: Create interfaces_bmc_api anchor
+  ansible.builtin.set_fact:
+    interfaces_bmc_api: &interfaces_bmc_api
+      url_username: "{{ interfaces_bmc_admin_user }}"
+      url_password: "{{ interfaces_bmc_admin_password }}"
+      validate_certs: "{{ interfaces_bmc_validate_certs }}"
+      force_basic_auth: "{{ interfaces_bmc_force_basic_auth }}"
+
+- name: Get EthernetInterface
+  ansible.builtin.uri:
+    <<: *interfaces_bmc_api
+    url: "https://{{ interfaces_bmc_uri }}/redfish/v1/Managers/1/EthernetInterfaces/1"
+    status_code: [200]
+  delegate_to: localhost
+  register: interfaces_eth_interface_info
+
+- name: Set HostName
+  when: interfaces_eth_interface_info.json.HostName != interfaces_ethernet_interface.HostName
+  ansible.builtin.uri:
+    <<: *interfaces_bmc_api
+    url: "https://{{ interfaces_bmc_uri }}/redfish/v1/Managers/1/EthernetInterfaces/1"
+    method: PATCH
+    body:
+      HostName: "{{ interfaces_ethernet_interface.HostName }}"
+    body_format: json
+    status_code: [200]
+  delegate_to: localhost
+  register: interfaces_set_hostname
+  changed_when: interfaces_set_hostname.status == 200
+
+- name: Configure IPProtocolStatus (IPv4, IPv6, or Dual)
+  when: interfaces_eth_interface_info.json.Oem.Supermicro.IPProtocolStatus != interfaces_ethernet_interface.IPProtocolStatus
+  ansible.builtin.uri:
+    <<: *interfaces_bmc_api
+    url: "https://{{ interfaces_bmc_uri }}/redfish/v1/Managers/1/EthernetInterfaces/1"
+    method: PATCH
+    body:
+      Oem:
+        Supermicro:
+          IPProtocolStatus: "{{ interfaces_ethernet_interface.IPProtocolStatus }}"
+    body_format: json
+    status_code: [200]
+  delegate_to: localhost
+  register: interfaces_disable_ipv6
+  changed_when: interfaces_disable_ipv6.status == 200
+
+- name: Set DNS StaticNameServers
+  when: interfaces_eth_interface_info.json.StaticNameServers != interfaces_ethernet_interface.StaticNameServers
+  ansible.builtin.uri:
+    <<: *interfaces_bmc_api
+    url: "https://{{ interfaces_bmc_uri }}/redfish/v1/Managers/1/EthernetInterfaces/1"
+    method: PATCH
+    body:
+      StaticNameServers: "{{ interfaces_ethernet_interface.StaticNameServers }}"
+    body_format: json
+    status_code: [200]
+  delegate_to: localhost
+  register: interfaces_set_dns
+  changed_when: interfaces_set_dns.status == 200
+
+- name: Set LANInterface type (Dedicated, Shared, Failover)
+  when: interfaces_eth_interface_info.json.Oem.Supermicro.LANInterface != interfaces_ethernet_interface.LANInterface
+  ansible.builtin.uri:
+    <<: *interfaces_bmc_api
+    url: "https://{{ interfaces_bmc_uri }}/redfish/v1/Managers/1/EthernetInterfaces/1"
+    method: PATCH
+    body:
+      Oem:
+        Supermicro:
+          LANInterface: "{{ interfaces_ethernet_interface.LANInterface }}"
+    body_format: json
+    status_code: [200]
+  delegate_to: localhost
+  register: interfaces_set_iface_type
+  changed_when: interfaces_set_iface_type.status == 200
+...

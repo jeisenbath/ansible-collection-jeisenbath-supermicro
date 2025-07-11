@@ -1,0 +1,11 @@
+---
+# defaults file for bios
+bios_bmc_admin_user: "{{ bmc_admin_user }}"
+bios_bmc_admin_password: "{{ bmc_admin_password }}"
+bios_bmc_validate_certs: "{{ bmc_validate_certs }}"
+bios_bmc_force_basic_auth: "{{ bmc_force_basic_auth }}"
+bios_bmc_uri: "{{ bmc_uri }}"
+bios_apply_pending: false
+bios_reset: false
+bios_reset_type: GracefulRestart
+...

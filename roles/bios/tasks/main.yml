@@ -1,0 +1,47 @@
+---
+# tasks file for bios
+- name: Create accounts_bmc_api anchor
+  ansible.builtin.set_fact:
+    bios_bmc_api: &bios_bmc_api
+      url_username: "{{ bios_bmc_admin_user }}"
+      url_password: "{{ bios_bmc_admin_password }}"
+      validate_certs: "{{ bios_bmc_validate_certs }}"
+      force_basic_auth: "{{ bios_bmc_force_basic_auth }}"
+
+- name: Update BIOS Settings
+  when: bios_attributes is defined
+  ansible.builtin.uri:
+    <<: *bios_bmc_api
+    url: "https://{{ bios_bmc_uri }}/redfish/v1/Systems/1/Bios"
+    method: PATCH
+    status_code: [202]
+    body_format: json
+    body:
+      Attributes: "{{ bios_attributes }}"
+  delegate_to: localhost
+  register: bios_update
+  changed_when: bios_update.status == 202
+
+- name: Check for pending updates
+  when: bios_apply_pending
+  ansible.builtin.uri:
+    <<: *bios_bmc_api
+    url: "https://{{ bios_bmc_uri }}/redfish/v1/Systems/1/Bios"
+    status_code: [200]
+  delegate_to: localhost
+  register: bios_pending
+  changed_when: bios_pending.json.Attributes is defined
+  notify: Restart and apply Bios settings
+
+- name: Reset BIOS
+  when: bios_reset
+  ansible.builtin.uri:
+    <<: *bios_bmc_api
+    url: "https://{{ bios_bmc_uri }}/redfish/v1/Systems/1/Bios/Actions/Bios.ResetBios"
+    method: POST
+    status_code: [200]
+  delegate_to: localhost
+  register: bios_reset_bios
+  changed_when: bios_reset_bios.status == 200
+  notify: Restart and apply Bios settings
+...

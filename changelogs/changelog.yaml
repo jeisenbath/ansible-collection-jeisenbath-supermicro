@@ -1,0 +1,14 @@
+ancestor: null
+releases:
+  1.0.0:
+    changes:
+      major_changes:
+      - accounts role added
+      - bios role added
+      - interfaces role added
+      - managers role added
+      - network_protocols role added
+      release_summary: Released 2025-07-11
+    fragments:
+    - init.yml
+    release_date: '2025-07-11'
