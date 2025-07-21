@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SSM Web</short>
+  <description>SSM Web service</description>
+  <port port="8443" protocol="tcp"/>
+</service>

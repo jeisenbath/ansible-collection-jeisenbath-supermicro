@@ -12,3 +12,11 @@ releases:
     fragments:
     - init.yml
     release_date: '2025-07-11'
+  1.1.0:
+    changes:
+      major_changes:
+      - create role ssm_install
+      release_summary: Released 2025-07-21
+    fragments:
+    - ssm_install.yml
+    release_date: '2025-07-21'

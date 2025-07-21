@@ -1,0 +1,106 @@
+---
+# tasks file for ssm_install
+- name: Assert that the installer bundle, file, and admin password are defined
+  ansible.builtin.assert:
+    that:
+      - ssm_install_installer_bundle_path is defined
+      - ssm_install_file is defined
+      - ssm_install_web_admin_password is defined
+
+- name: Install unzip
+  ansible.builtin.package:
+    name: unzip
+    state: present
+
+- name: Unzip installer archive
+  ansible.builtin.unarchive:
+    src: "{{ ssm_install_installer_bundle_path }}"
+    dest: "{{ ssm_install_parent_dir }}"
+    owner: "{{ ssm_install_user }}"
+    group: "{{ ssm_install_group }}"
+
+- name: Make installer bin executable
+  ansible.builtin.file:
+    path: "{{ ssm_install_parent_dir }}/{{ ssm_install_file }}"
+    mode: '0744'
+
+- name: Unzip MIB
+  ansible.builtin.unarchive:
+    src: "{{ ssm_install_parent_dir }}/SSM_MIB.zip"
+    dest: "{{ ssm_install_parent_dir }}"
+    remote_src: true
+    owner: "{{ ssm_install_user }}"
+    group: "{{ ssm_install_group }}"
+
+- name: Create install temp directory
+  ansible.builtin.file:
+    path: "{{ ssm_install_parent_dir }}/tmp"
+    state: directory
+    owner: "{{ ssm_install_user }}"
+    group: "{{ ssm_install_group }}"
+    mode: '0755'
+
+- name: Create SSM install directory
+  ansible.builtin.file:
+    path: "{{ ssm_install_parent_dir }}/SSM"
+    state: directory
+    owner: "{{ ssm_install_user }}"
+    group: "{{ ssm_install_group }}"
+    mode: '0755'
+    selevel: _default
+    serole: _default
+    setype: _default
+    seuser: _default
+
+- name: Copy property file template
+  ansible.builtin.template:
+    src: ssm_install.property_file.j2
+    dest: "{{ ssm_install_parent_dir }}/ssm_install.property_file"
+    owner: "{{ ssm_install_user }}"
+    group: "{{ ssm_install_group }}"
+    mode: '0644'
+
+- name: Run silent installer
+  ansible.builtin.command:
+    cmd: "{{ ssm_install_parent_dir }}/{{ ssm_install_file }} -i silent -f {{ ssm_install_parent_dir }}/ssm_install.property_file"
+    chdir: "{{ ssm_install_parent_dir }}"
+    creates: "{{ ssm_install_parent_dir }}/SSM/InstallResult.log"
+  environment:
+    IATEMPDIR: "{{ ssm_install_parent_dir }}/tmp"
+    TEMP: "{{ ssm_install_parent_dir }}/tmp"
+
+- name: Zero out property file
+  ansible.builtin.command:
+    cmd: "dd if=/dev/zero of={{ ssm_install_parent_dir }}/ssm_install.property_file bs=1M"
+  changed_when: true
+
+- name: Remove property file
+  ansible.builtin.file:
+    path: "{{ ssm_install_parent_dir }}/ssm_install.property_file"
+    state: absent
+
+- name: Copy firewalld service
+  when: ssm_install_use_firewalld
+  ansible.builtin.copy:
+    src: ssmweb.xml
+    dest: /etc/firewalld/services/ssmweb.xml
+    owner: root
+    group: root
+    mode: '0644'
+  register: ssm_install_create_firewalld_service
+
+- name: Reload firewalld # noqa: no-handler
+  when: (ssm_install_use_firewalld) and (ssm_install_create_firewalld_service.changed)
+  ansible.builtin.command:
+    cmd: firewall-cmd --reload
+  changed_when: true
+
+- name: Add ssmweb service to firewalld
+  when: ssm_install_use_firewalld
+  ansible.posix.firewalld:
+    service: ssmweb
+    state: enabled
+    zone: public
+    permanent: true
+    immediate: true
+...
