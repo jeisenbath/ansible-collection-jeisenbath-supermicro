@@ -81,8 +81,8 @@
 
 - name: Copy firewalld service
   when: ssm_install_use_firewalld
-  ansible.builtin.copy:
-    src: ssmweb.xml
+  ansible.builtin.template:
+    src: ssmweb.xml.j2
     dest: /etc/firewalld/services/ssmweb.xml
     owner: root
     group: root
