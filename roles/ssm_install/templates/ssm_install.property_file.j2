@@ -1,0 +1,49 @@
+# ---------------------
+# This file was built by the Replay feature of InstallAnywhere.
+# It contains variables that were set by Panels or Consoles.
+#Choose Install Folder
+# e.g., C:\\Program Files\\Supermicro\\SSM
+# /opt/Supermicro/SSM
+#---------------------
+USER_INSTALL_DIR={{ ssm_install_parent_dir }}/SSM
+#Choose Install Feature
+#---------------------
+CHOSEN_INSTALL_FEATURE_LIST= {{ ssm_install_chosen_install_feature_list }}
+#Choose a Java VM
+#----------------------
+USE_DEFAULT_JVM={{ ssm_install_use_default_jvm }}
+{% if ssm_install_use_default_jvm == 'No' %}
+INSTALLED_JVM_PATH={{ ssm_install_installed_jvm_path }}
+{% endif %}
+#Setup Web Server
+#----------------
+SERVER_WEB_HTTP_PORT={{ ssm_install_server_web_http_port }}
+SERVER_WEB_HTTPS_PORT={{ ssm_install_server_web_https_port }}
+#Setup Email
+#-----------
+SERVER_EMAIL_SMTP={{ ssm_install_server_email_smtp }}
+SERVER_EMAIL_SENDER={{ ssm_install_server_email_sender }}
+SERVER_EMAIL_USERNAME={{ ssm_install_server_email_username }}
+SERVER_EMAIL_PASSWORD={{ ssm_install_server_email_password }}
+#Setup SMTP server port. Default: 25
+SERVER_EMAIL_SMTP_PORT={{ ssm_install_server_email_smtp_port }}
+#Choose connection security for your SMTP server. Default: none
+SERVER_EMAIL_SMTP_SECURITY={{ ssm_install_server_email_smtp_security }}
+#Setup Contact Email
+SERVER_DEFAULT_CONTACT={{ ssm_install_server_default_contact }}
+#Setup DB
+#----------------------
+USE_SERVER_DEFAULT_DB={{ ssm_install_use_server_default_db }}
+SERVER_CREATE_DB={{ ssm_install_server_create_db }}
+{% if ssm_install_server_create_db == 'No' %}
+SERVER_DB_TYPE= {{ ssm_install_server_db.type }}
+SERVER_DB_NAME= {{ ssm_install_server_db.name }}
+SERVER_DB_PORT= {{ ssm_install_server_db.port }}
+SERVER_DB_IP={{ ssm_install_server_db.ip }}
+SERVER_DB_USERNAME={{ ssm_install_server_db.username }}
+SERVER_DB_PASSWORD={{ ssm_install_server_db.password }}
+{% endif %}
+#Default account of administrator
+#----------------------
+#Uncomment below statement to set the password for the built-in ADMIN user.
+SERVER_DEFAULT_PASSWORD={{ ssm_install_web_admin_password }}

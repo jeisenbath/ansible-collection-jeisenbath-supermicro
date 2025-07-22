@@ -1,0 +1,30 @@
+---
+# defaults file for ssm_install
+ssm_install_parent_dir: /opt/Supermicro
+ssm_install_use_firewalld: true
+# ssm needs to be installed with root priviledges. Change these if you want file ownership to a different user
+ssm_install_user: root
+ssm_install_group: root
+# ssm install property vars
+ssm_install_chosen_install_feature_list: SSMServer,SSMWeb
+ssm_install_use_default_jvm: 'Yes'
+ssm_install_installed_jvm_path: /usr/java/jdk17.0.10/jre/bin/java # set if use_default_jvm is set to No
+ssm_install_server_web_http_port: 8080
+ssm_install_server_web_https_port: 8443
+ssm_install_server_email_smtp: mail.localdomain.com
+ssm_install_server_email_sender: localhost@localdomain.com
+ssm_install_server_email_username: localhost
+ssm_install_server_email_password: changeme
+ssm_install_server_email_smtp_port: 25
+ssm_install_server_email_smtp_security: none
+ssm_install_server_default_contact: your.name@your-domain.com
+ssm_install_use_server_default_db: 'Yes'
+ssm_install_server_create_db: 'Yes'
+ssm_install_server_db: # define if not installing default database
+  type: PostgreSQL
+  name: ssm
+  port: 5432
+  ip: your-DB-IP
+  username: your-DB-Account
+  password: your-DB-password
+...
