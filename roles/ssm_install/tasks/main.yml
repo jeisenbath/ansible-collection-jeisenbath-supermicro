@@ -69,11 +69,6 @@
     IATEMPDIR: "{{ ssm_install_parent_dir }}/tmp"
     TEMP: "{{ ssm_install_parent_dir }}/tmp"
 
-- name: Zero out property file
-  ansible.builtin.command:
-    cmd: "dd if=/dev/zero of={{ ssm_install_parent_dir }}/ssm_install.property_file bs=1M"
-  changed_when: true
-
 - name: Remove property file
   ansible.builtin.file:
     path: "{{ ssm_install_parent_dir }}/ssm_install.property_file"
