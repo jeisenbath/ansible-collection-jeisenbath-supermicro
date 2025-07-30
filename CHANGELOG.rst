@@ -5,6 +5,24 @@ Jeisenbath.Supermicro Release Notes
 .. contents:: Topics
 
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+Released 2025-07-30
+
+Major Changes
+-------------
+
+- created ssm_host module to manage hosts in SSM
+
+New Modules
+-----------
+
+- jeisenbath.supermicro.ssm_host - Manages hosts in Supermicro Server Manager.
+
 v1.1.0
 ======
 

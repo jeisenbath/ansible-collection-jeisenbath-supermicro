@@ -20,3 +20,15 @@ releases:
     fragments:
     - ssm_install.yml
     release_date: '2025-07-21'
+  1.2.0:
+    changes:
+      major_changes:
+      - created ssm_host module to manage hosts in SSM
+      release_summary: Released 2025-07-30
+    fragments:
+    - ssm_host.yml
+    modules:
+    - description: Manages hosts in Supermicro Server Manager.
+      name: ssm_host
+      namespace: ''
+    release_date: '2025-07-30'

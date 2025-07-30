@@ -1,0 +1,11 @@
+---
+ssm_test_ssm_hostname: "{{ ssm_hostname }}"
+ssm_test_username: ADMIN
+ssm_test_password: "{{ ssm_password }}"
+ssm_test_port: '8443'
+ssm_test_force_basic_auth: true
+# ssm_hosts test variables
+ssm_test_search_range:
+ssm_test_bmc_user: ADMIN
+ssm_test_bmc_password: "{{ bmc_password }}"
+...

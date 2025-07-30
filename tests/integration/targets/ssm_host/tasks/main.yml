@@ -1,0 +1,8 @@
+---
+# Integration tests for ssm_host module
+- name: Include tests
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - redfish.yml
+    - remove.yml
+...

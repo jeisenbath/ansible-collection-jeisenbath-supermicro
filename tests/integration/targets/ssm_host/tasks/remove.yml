@@ -1,0 +1,47 @@
+---
+- name: Remove host (check)
+  ssm_host: &remove_host
+    ssm_hostname: "{{ ssm_test_ssm_hostname }}"
+    username: "{{ ssm_test_username }}"
+    password: "{{ ssm_test_password }}"
+    force_basic_auth: "{{ ssm_test_force_basic_auth }}"
+    ssm_https_port: "{{ ssm_test_port }}"
+    bmc_hostname: "{{ ssm_test_bmc_hostname }}"
+    state: absent
+  delegate_to: localhost
+  check_mode: true
+  register: remove_host_01
+
+- name: Remove host
+  ssm_host:
+    <<: *remove_host
+  delegate_to: localhost
+  register: remove_host_02
+
+- name: Remove host (check) (idempotence)
+  ssm_host:
+    <<: *remove_host
+  delegate_to: localhost
+  check_mode: true
+  register: remove_host_03
+
+- name: Remove host (idempotence)
+  ssm_host:
+    <<: *remove_host
+  delegate_to: localhost
+  register: remove_host_04
+
+- name: Debug
+  ansible.builtin.debug:
+    var: remove_host_02
+
+- name: Add host asserts
+  ansible.builtin.assert:
+    that:
+      - remove_host_01.changed
+      - remove_host_02.changed
+      - not remove_host_03.changed
+      - not remove_host_04.changed
+      - remove_host_02.host is defined
+      - remove_host_02.host.Name == ssm_test_bmc_hostname
+...

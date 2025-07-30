@@ -9,9 +9,14 @@ plugins:
   httpapi: {}
   inventory: {}
   lookup: {}
-  module: {}
+  module:
+    ssm_host:
+      description: Manages hosts in Supermicro Server Manager.
+      name: ssm_host
+      namespace: ''
+      version_added: 1.2.0
   netconf: {}
   shell: {}
   strategy: {}
   vars: {}
-version: 1.1.0
+version: 1.2.0

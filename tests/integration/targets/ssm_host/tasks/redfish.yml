@@ -1,0 +1,60 @@
+---
+# Tests for discovering redfish hosts
+- name: Create SSM connection anchor
+  ansible.builtin.set_fact:
+    ssm_connection: &ssm_connection
+      ssm_hostname: "{{ ssm_test_ssm_hostname }}"
+      username: "{{ ssm_test_username }}"
+      password: "{{ ssm_test_password }}"
+      force_basic_auth: "{{ ssm_test_force_basic_auth }}"
+      ssm_https_port: "{{ ssm_test_port }}"
+
+- name: Add host (check)
+  ssm_host: &add_host
+    ssm_hostname: "{{ ssm_test_ssm_hostname }}"
+    username: "{{ ssm_test_username }}"
+    password: "{{ ssm_test_password }}"
+    force_basic_auth: "{{ ssm_test_force_basic_auth }}"
+    ssm_https_port: "{{ ssm_test_port }}"
+    bmc_hostname: "{{ ssm_test_bmc_hostname }}"
+    state: present
+    discovery_type: redfish
+    bmc_user: "{{ ssm_test_bmc_user }}"
+    bmc_password: "{{ ssm_test_bmc_password }}"
+  delegate_to: localhost
+  check_mode: true
+  register: add_host_01
+
+- name: Add host
+  ssm_host:
+    <<: *add_host
+  delegate_to: localhost
+  register: add_host_02
+
+- name: Add host (check) (idempotence)
+  ssm_host:
+    <<: *add_host
+  delegate_to: localhost
+  check_mode: true
+  register: add_host_03
+
+- name: Add host (idempotence)
+  ssm_host:
+    <<: *add_host
+  delegate_to: localhost
+  register: add_host_04
+
+- name: Debug
+  ansible.builtin.debug:
+    var: add_host_02
+
+- name: Add host asserts
+  ansible.builtin.assert:
+    that:
+      - add_host_01.changed
+      - add_host_02.changed
+      - not add_host_03.changed
+      - not add_host_04.changed
+      - add_host_02.host is defined
+      - add_host_02.host.Name == ssm_test_bmc_hostname
+...
